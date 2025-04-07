@@ -1,0 +1,9 @@
+venv/
+nltk_data/
+mindgrasp/
+scientific-computing.pdf
+.env
+__pycache__/
+controllers/__pycache__/
+gateway/__pycache__/
+orchestrator/__pycache__/
