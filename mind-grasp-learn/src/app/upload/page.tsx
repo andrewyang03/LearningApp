@@ -9,9 +9,10 @@ import { QuizAPIResponse, MatchingGame, FillInTheBlankQuestion, OpenResponseQues
 const UploadPage = () => {
     const [pdfFile, setPdfFile] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const { quizzes, setQuizzes, clearQuizzes } = useQuizContext();
+    const { quizzes, setQuizzes, clearQuizzes, clearQuizChoice } = useQuizContext();
     const [hoveredQuiz, setHoveredQuiz] = useState<string | null>(null);
     const [selectedQuizzes, setSelectedQuizzes] = useState<string[]>([]);
+    const [showClearModal, setShowClearModal] = useState(false);
 
     // Quiz type icons
     const quizIcons = {
@@ -59,10 +60,16 @@ const UploadPage = () => {
         }
     }
 
+    const handleClearQuizData = () => {
+        clearQuizzes();
+        setShowClearModal(true);
+        setTimeout(() => setShowClearModal(false), 2000);
+    }
+
     return (
         <div className="min-h-screen bg-[#f9f7f3] p-4 md:p-8">
             <div className="max-w-6xl mx-auto">
-                <h1 className="text-4xl text-center font-bold mb-8 text-[#0077b6]">Quiz Generator</h1>
+                <h1 className="text-4xl text-center font-bold mb-8 text-[#0077b6]">MindGrasp Quiz Creator</h1>
                 
                 {/* Main content container */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -127,14 +134,18 @@ const UploadPage = () => {
                         {isLoading ? "Processing..." : "Generate Quizzes"}
                     </button>
 
-                    {quizzes && Object.keys(quizzes).length > 0 && (
-                        <button
-                            className="px-6 py-3 rounded-md bg-red-600 text-white font-semibold text-lg shadow-md transition-all hover:bg-red-700"
-                            onClick={clearQuizzes}
-                        >
-                            Clear Saved Quizzes
-                        </button>
-                    )}
+                    <button
+                    className={`px-6 py-3 rounded-md font-semibold text-lg shadow-md transition-all
+                        ${
+                        !quizzes || Object.keys(quizzes).length === 0
+                            ? "bg-gray-400 text-white cursor-not-allowed"
+                            : "bg-red-600 text-white hover:bg-red-700"
+                        }`}
+                    onClick={handleClearQuizData}
+                    disabled={!quizzes || Object.keys(quizzes).length === 0}
+                    >
+                    Clear Saved Quizzes
+                    </button>
                 </div>
 
                 {/* Loading overlay */}
@@ -155,6 +166,14 @@ const UploadPage = () => {
                                 </p>
                             </div>
                         </div>
+                    </div>
+                )}
+                {showClearModal && (
+                    <div 
+                        className="fixed inset-0 flex items-center justify-center text-white px-6 py-3 rounded-lg shadow-lg z-50"
+                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+                    >
+                        Old quiz data has been cleared.
                     </div>
                 )}
             </div>

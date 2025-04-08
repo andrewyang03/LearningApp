@@ -44,7 +44,7 @@ export const QuizProvider = ({ children }: {children: ReactNode}) => {
             localStorage.setItem('quizzes', JSON.stringify(quizzes));
         }
         if (quizChoice) {
-            localStorage.setItem('quizChoice', quizChoice);
+            localStorage.setItem('quizChoices', quizChoice);
         }
     }, [quizzes, quizChoice]);
 
@@ -60,7 +60,7 @@ export const QuizProvider = ({ children }: {children: ReactNode}) => {
         setQuizzesState(null);
         localStorage.removeItem('quizzes');
     };
-
+    
     const clearQuizChoice = () => {
         setQuizChoiceState(null);
         localStorage.removeItem('quizChoice');
