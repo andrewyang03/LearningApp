@@ -1,3 +1,4 @@
+import { FillInTheBlankQuestion, OpenResponseQuestion } from "@/schemas/definitions";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -28,5 +29,29 @@ export const fetchData = (pdfFile: File, selectedQuizzes: string[]) => {
     .catch((error) => {
       console.error("Error:", error);
       throw error; // Re-throw the error for the calling function to handle
+    });
+};
+
+
+export const checkOpenResponse = (quizElt: OpenResponseQuestion, student_res: string) => {
+    const formData = new FormData();
+    formData.append("question", JSON.stringify(quizElt));
+    formData.append("student_response", student_res)
+
+    return fetch(`${API_ENDPOINT}check-open-response`, {
+        method: "POST",
+        body: formData,
+    }).then((res) => {
+        if (!res.ok) {
+            throw new Error(`API Error: ${res.statusText}`);
+        }
+        console.log(res)
+        return res.json();
+    }).then((data) => {
+        console.log(data)
+        return data
+    }).catch((error) => {
+        console.error("Error:", error)
+        throw error;
     });
 };

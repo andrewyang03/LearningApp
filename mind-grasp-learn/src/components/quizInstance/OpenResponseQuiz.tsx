@@ -1,21 +1,36 @@
 "use client"
 import { useState } from "react";
 import { OpenResponseQuestion } from "@/schemas/definitions";
+import { checkOpenResponse } from "@/utils/apis";
 interface TakingQuizProps {
     data: OpenResponseQuestion;
-    onSubmit: (arg: boolean) => void;
+    onSubmit: (arg: string) => void;
     onNext: () => void;
 }
 
 const OpenResponseQuiz: React.FC<TakingQuizProps> = ({ data, onSubmit, onNext }) => {
     const [response, setResponse] = useState('');
     const [answered, setAnswered] = useState(false)
+    const [isCorrect, setIsCorrect] = useState<string | null>("");
+    const [feedback, setFeedback] = useState<string | null>(null);
     
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!response.trim()) {
             return;
         }
-        onSubmit(true); 
+        const feedback = await checkOpenResponse(data, response)
+        const output = JSON.parse(feedback["output"])
+        
+        const correct = output["decision"]
+        const explanation = output["explanation"]
+
+        setIsCorrect(correct);
+        setFeedback(correct === 'correct' ? 
+            `Correct! ${explanation}` : correct === 'incorrect' ?
+            `Incorrect. An example answer is: ${data.answer}. ${explanation}` :
+            `Partially Correct. ${explanation}`
+          );
+        onSubmit(correct); 
         setAnswered(true);
 
     };
@@ -45,13 +60,11 @@ const OpenResponseQuiz: React.FC<TakingQuizProps> = ({ data, onSubmit, onNext })
 
             ) : (
                 <div className="flex flex-col gap-4 mt-6">
-                    <div className="mt-4 p-4 bg-blue-50 rounded-md">
-                        <h4 className="font-medium">Sample Answer:</h4>
-                        <p className="mt-2">{data.answer}</p>
-                        
-                        <h4 className="font-medium mt-4">Follow-up Question:</h4>
-                        <p className="mt-2">{data.follow_up_question}</p>
-                    </div>
+                    {feedback && (
+                        <div className={`mt-4 p-3 rounded ${isCorrect === 'correct' ? 'bg-green-100 text-green-800' : isCorrect === 'incorrect' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                            {feedback}
+                        </div>
+                    )}
                     <button 
                         onClick={onNext}
                         className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"

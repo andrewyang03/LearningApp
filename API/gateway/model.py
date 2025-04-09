@@ -8,7 +8,7 @@ from langgraph.prebuilt import create_react_agent
 import os
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate
-
+from openai import OpenAI
 
 load_dotenv()
 
@@ -206,26 +206,63 @@ def create_quizzes():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
+@model_gateway.route('/model-open-res', methods=['POST'])
+def checkOpenRes():
+    data = request.get_json()
+    if not data or 'question' not in data or 'correct_answer' not in data or 'student_response' not in data:
+        return jsonify({'error': 'No data or data specifications provided'}), 400
     
+    question = data['question']
+    correct_answer = data['correct_answer']
+    student_response = data['student_response']
+    
+    inputs = f"Question: {question} \nCorrect Solution: {correct_answer}\n Student Answer: {student_response}"
+    
+    systemMessage = '''
+    
+    You are an expert in reviewing open ended responses in order to assist students in learning more effectively.
+    Given the question, correct answer, and student response below, validate whether the student's response can
+    be deemed a correct answer. If the response is considered to be incorrect, please provide an explanation as to
+    why that response is incorrect. A correct response should have contain the fundamental concepts present in the
+    sample answer rather than if the student response is phrased similarly to the answer. Partially correct answers
+    should also receive justification for why it is partially correct.
+    
+    This output should be formatted in a JSON format with the following fields:
+    
+    decision: str = Field(description="Return either correct, incorrect, or partially correct")
+    explanation: str = Field(description="Justification for decision")
+    '''
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", systemMessage),
+        ("user", "Check whether the response below is a correct solution or not: \n{inputs}"),
+        ("placeholder", "{agent_scratchpad}")
+    
+    ])
+    
+    agent = create_tool_calling_agent(llm, tools, prompt)
+    agent_executor = AgentExecutor(agent=agent, tools=tools)
+    response = agent_executor.invoke({"inputs": inputs})
+    return jsonify(response), 200
 
 def main():
-    sample_text = """
-In Python, a function is a block of reusable code that performs a specific task. Functions are defined using the 'def' keyword, 
-followed by the function name and parentheses (). Parameters can be passed inside the parentheses.
+#     sample_text = """
+# In Python, a function is a block of reusable code that performs a specific task. Functions are defined using the 'def' keyword, 
+# followed by the function name and parentheses (). Parameters can be passed inside the parentheses.
 
-For example:
-def greet(name):
-    print(f"Hello, {name}!")
+# For example:
+# def greet(name):
+#     print(f"Hello, {name}!")
 
-To call a function, use its name followed by parentheses with any required arguments.
-You can return values using the 'return' statement.
+# To call a function, use its name followed by parentheses with any required arguments.
+# You can return values using the 'return' statement.
 
-Functions improve code modularity and reusability. Python also supports lambda functions, 
-which are anonymous one-line functions often used for short operations.
-"""
-    print("Generating Matching Games...")
-    matching = create_matching_games(sample_text)
-    print(matching)
+# Functions improve code modularity and reusability. Python also supports lambda functions, 
+# which are anonymous one-line functions often used for short operations.
+# """
+#     print("Generating Matching Games...")
+#     matching = create_matching_games(sample_text)
+#     print(matching)
+    pass
 
 if __name__ == "__main__":
     main()

@@ -44,7 +44,7 @@ export const QuizProvider = ({ children }: {children: ReactNode}) => {
             localStorage.setItem('quizzes', JSON.stringify(quizzes));
         }
         if (quizChoice) {
-            localStorage.setItem('quizChoices', quizChoice);
+            localStorage.setItem('quizChoice', quizChoice);
         }
     }, [quizzes, quizChoice]);
 
