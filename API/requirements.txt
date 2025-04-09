@@ -8,3 +8,4 @@ pydantic
 PyPDF2
 requests
 gunicorn
+flask-cors
