@@ -1,7 +1,7 @@
-"use client";
+'use client'
+
 import { useState, useEffect } from 'react';
 import { useQuizContext } from "@/contexts/quiz-context";
-import { useSearchParams } from 'next/navigation';
 import { MatchingGame, MultipleChoiceQuestion, TrueFalseQuestion, OpenResponseQuestion, FillInTheBlankQuestion, QuizAPIResponse } from '@/schemas/definitions';
 import MatchingGameQuiz from "@/components/quizInstance/MatchingGameQuiz";
 import MultipleChoiceQuiz from "@/components/quizInstance/MultipleChoiceQuiz";
@@ -18,12 +18,9 @@ interface QuizContextType {
 
 const TakeQuiz = () => {
   const { quizzes, quizChoice } = useQuizContext();
-  const searchParams = useSearchParams();
   const type = quizChoice as keyof QuizAPIResponse;
   console.log("Choice", quizChoice)
   console.log(type)
-  // console.log(quizzes)
-  // console.log(quizChoice)
 
 
   const [quizData, setQuizData] = useState<MatchingGame[] |MultipleChoiceQuestion[] | TrueFalseQuestion[] | OpenResponseQuestion[] | FillInTheBlankQuestion[]>([]);
