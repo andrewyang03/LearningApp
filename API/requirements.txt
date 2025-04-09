@@ -7,3 +7,4 @@ openai
 pydantic
 PyPDF2
 requests
+gunicorn
