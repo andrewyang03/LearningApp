@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-import nltk, os
+import os
 from dotenv import load_dotenv
 from urllib.parse import urljoin
 import requests
