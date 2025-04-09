@@ -19,7 +19,12 @@ const OpenResponseQuiz: React.FC<TakingQuizProps> = ({ data, onSubmit, onNext })
             return;
         }
         const feedback = await checkOpenResponse(data, response)
-        const output = JSON.parse(feedback["output"])
+        let outputStr = feedback["output"]
+        if (typeof outputStr === "string") {
+            outputStr = outputStr.replace(/```json|```/g, "").trim()
+        }
+
+        const output = JSON.parse(outputStr)
         
         const correct = output["decision"]
         const explanation = output["explanation"]

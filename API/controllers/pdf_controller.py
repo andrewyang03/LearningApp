@@ -17,13 +17,18 @@ def read_pdf():
     if 'quizzes' not in request.form:
         return jsonify({'error': 'No quizzes part in the request'}), 400
    
-    pdf_file = request.files['file']
-    quizzes = request.form['quizzes']
-    
-    if pdf_file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
     
     try:
+        pdf_file = request.files['file']
+        quizzes = request.form['quizzes']
+        
+        if pdf_file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+        
+        filepath = f"/tmp/{pdf_file.filename}"
+        pdf_file.save(filepath)
+        print("📄 File saved to:", filepath)
+        
         json_quizzes = json.loads(quizzes)
         
         pdf_reader = PyPDF2.PdfReader(pdf_file)
@@ -39,7 +44,7 @@ def read_pdf():
         api_endpoint = os.getenv("API_ENDPOINT")
         url = urljoin(api_endpoint, "format")
         res = requests.post(url, json={'text': text, 'quizzes': json_quizzes})
-        
+        print("Response", res)
         return jsonify(res.json()), res.status_code
     
     except json.JSONDecodeError as e:

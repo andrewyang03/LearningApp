@@ -45,10 +45,8 @@ export const checkOpenResponse = (quizElt: OpenResponseQuestion, student_res: st
         if (!res.ok) {
             throw new Error(`API Error: ${res.statusText}`);
         }
-        console.log(res)
         return res.json();
     }).then((data) => {
-        console.log(data)
         return data
     }).catch((error) => {
         console.error("Error:", error)

@@ -19,9 +19,6 @@ interface QuizContextType {
 const TakeQuiz = () => {
   const { quizzes, quizChoice } = useQuizContext();
   const type = quizChoice as keyof QuizAPIResponse;
-  console.log("Choice", quizChoice)
-  console.log(type)
-
 
   const [quizData, setQuizData] = useState<MatchingGame[] |MultipleChoiceQuestion[] | TrueFalseQuestion[] | OpenResponseQuestion[] | FillInTheBlankQuestion[]>([]);
   const [currQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -38,7 +35,6 @@ const TakeQuiz = () => {
 
   useEffect(() => {
     if (type && quizzes) {
-      // console.log(quizzes)
       const quizKey = mapping[type];
       if (quizKey) {
         const selectedQuizzes = quizzes[quizKey];
@@ -54,10 +50,6 @@ const TakeQuiz = () => {
     }
   }, [type, quizzes]);
 
-  useEffect(() => {
-    console.log(quizData);
-  }, [quizData])
-
   // Uses type any since we know for sure it's coming from the verified mapping. Otherwise we aren't using this function
   const shuffleQuestions = (selectedQuizzes: any, quizKey: any) => {
     const shuffledQuizzes = [...selectedQuizzes].sort(() => Math.random() - 0.5);
@@ -70,7 +62,6 @@ const TakeQuiz = () => {
     } else if (quizKey === "multiple_choice") {
       setQuizData(randomQuestions as MultipleChoiceQuestion[]);
     } else if (quizKey === "true_and_false") {
-      console.log("QUfds", quizKey)
       setQuizData(randomQuestions as TrueFalseQuestion[]);
     } else if (quizKey === "fill_in_the_blank") {
       setQuizData(randomQuestions as FillInTheBlankQuestion[]);
@@ -82,7 +73,7 @@ const TakeQuiz = () => {
   const handleOpenResponseSubmit = (isCorrect: string) => {
     if (isCorrect == "correct") {
       setScore(prev => prev + 1);
-    } else if (isCorrect = "partially correct") {
+    } else if (isCorrect == "partially correct") {
       setScore(prev => prev + 0.5)
     }
   }

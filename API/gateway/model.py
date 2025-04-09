@@ -2,13 +2,9 @@ from flask import Blueprint, request, jsonify
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_community.tools.tavily_search import TavilySearchResults
-from langchain_core.messages import HumanMessage
-from langgraph.checkpoint.memory import MemorySaver
-from langgraph.prebuilt import create_react_agent
 import os
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate
-from openai import OpenAI
 
 load_dotenv()
 
@@ -42,7 +38,7 @@ def create_matching_games(text):
     explanation: str = Field(description="Explanation for the answer")
     correct_match: dict[str, str] = Field(description="The correct matching pairs from the options, with question as key and answer as value")
     
-    This output should be formatted in a JSON format. You will generate 50 of these instances or games.
+    This output should be formatted in a JSON format. You will generate 10 of these instances or games so 30 question answer pairs in total.
     Return your output in a json format with the following fields:
     questions: list[str] = Field(description="The list of questions to be answered")
     options: list[str] = Field(description="List of answer options")
@@ -56,16 +52,19 @@ def create_matching_games(text):
         ("placeholder", "{agent_scratchpad}")
         
     ])
-    agent = create_tool_calling_agent(llm, tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools)
-    response = agent_executor.invoke({"text": text})
-    return response
+    try:
+        agent = create_tool_calling_agent(llm, tools, prompt)
+        agent_executor = AgentExecutor(agent=agent, tools=tools)
+        response = agent_executor.invoke({"text": text})
+        return response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def create_fill_in_the_blank(text):
     systemMessage = '''
 
     You are an expert in generating fill in the blank questions in order to assist students in learning more effectively.
-    Given the above text, create 50 fill in the blank exercises, with each exercise consisting of a question and 4 corresponding 
+    Given the above text, create 10 fill in the blank exercises, with each exercise consisting of a question and 4 corresponding 
     answer options. Only one option will be the correct answer. Ensure that each question is not repeated, 
     and check that all the questions are conforming to the text. Additionally, each question should have a plausible distractor, 
     which is a wrong answer that is still related to the text.
@@ -85,16 +84,19 @@ def create_fill_in_the_blank(text):
         ("placeholder", "{agent_scratchpad}")
         
     ])
-    agent = create_tool_calling_agent(llm, tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools)
-    response = agent_executor.invoke({"text": text})
-    return response
+    try:
+        agent = create_tool_calling_agent(llm, tools, prompt)
+        agent_executor = AgentExecutor(agent=agent, tools=tools)
+        response = agent_executor.invoke({"text": text})
+        return response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def create_open_response(text):
     systemMessage = '''
     
     You are an expert in generating open ended responses in order to assist students in learning more effectively.
-    Given the above text, create 50 open response exercises, with each exercise consisting of a question, 
+    Given the above text, create 10 open response exercises, with each exercise consisting of a question, 
     a sample correct answer, and an anticipated follow up question from the student. 
     Ensure that each question is not repeated, and check that all the questions 
     are conforming to the text. Additionally, each question should have a plausible distractor, 
@@ -114,17 +116,20 @@ def create_open_response(text):
         ("placeholder", "{agent_scratchpad}")
         
     ])
-    agent = create_tool_calling_agent(llm, tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools)
-    response = agent_executor.invoke({"text": text})
-    return response
+    try:
+        agent = create_tool_calling_agent(llm, tools, prompt)
+        agent_executor = AgentExecutor(agent=agent, tools=tools)
+        response = agent_executor.invoke({"text": text})
+        return response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # Should include randomized plausible distractors
 def create_multiple_choice(text):
     systemMessage = '''
     
     You are an expert in generating multiple choice questions in order to assist students in learning more effectively.
-    Given the above text, create 50 multiple choice questions, with each exercise consisting of a question, 4 answer options,
+    Given the above text, create 10 multiple choice questions, with each exercise consisting of a question, 4 answer options,
     and a correct answer. Each option should consist of at least one plausible distractor that is related to the text, and 
     each exercise should include an explanation for the correct answer and why the plausible distractors are incorrect. 
     Ensure that each question is not repeated, and check that all the questions are conforming to the text. 
@@ -145,16 +150,25 @@ def create_multiple_choice(text):
         ("placeholder", "{agent_scratchpad}")
         
     ])
-    agent = create_tool_calling_agent(llm, tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools)
-    response = agent_executor.invoke({"text": text})
-    return response
+    try:
+        print("text", text)
+        print("here1")
+        agent = create_tool_calling_agent(llm, tools, prompt)
+        print("here2")
+        agent_executor = AgentExecutor(agent=agent, tools=tools)
+        print("here3")
+        response = agent_executor.invoke({"text": text})
+        print("here4")
+        return response
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+        
 
 def create_true_false(text):
     systemMessage = '''
     
     You are an expert in generating true false responses in order to assist students in learning more effectively.
-    Given the above text, create 50 true false exercises, with each exercise consisting of a question, 
+    Given the above text, create 10 true false exercises, with each exercise consisting of a question, 
     the correct answer, and an explanation for the correct answer. Ensure that each question is not repeated, 
     and check that all the questions are conforming to the text. 
     
@@ -172,10 +186,13 @@ def create_true_false(text):
         ("placeholder", "{agent_scratchpad}")
         
     ])
-    agent = create_tool_calling_agent(llm, tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools)
-    response = agent_executor.invoke({"text": text})
-    return response
+    try:
+        agent = create_tool_calling_agent(llm, tools, prompt)
+        agent_executor = AgentExecutor(agent=agent, tools=tools)
+        response = agent_executor.invoke({"text": text})
+        return response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @model_gateway.route('/model', methods=['POST'])
 def create_quizzes():

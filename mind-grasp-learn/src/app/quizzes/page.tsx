@@ -12,7 +12,6 @@ const Quizzes = () => {
     const [hoveredQuiz, setHoveredQuiz] = useState<string | null>(null);
     const [selectedQuiz, setSelectedQuiz] = useState<string | null>(null);
     const [showPreview, setShowPreview] = useState<string | null>(null);
-    console.log(quizzes)
 
     const quizIcons = {
         "Matching Games": "🔄",
@@ -28,10 +27,6 @@ const Quizzes = () => {
         setSelectedQuiz(isSameQuiz ? null : quizType);
         setQuizChoice(isSameQuiz ? null : quizTypeParam);
     };
-
-    useEffect(() => {
-        console.log(quizChoice)
-    }, [quizChoice])
     
     const handleTakeQuiz = () => {
         if (selectedQuiz) { 
