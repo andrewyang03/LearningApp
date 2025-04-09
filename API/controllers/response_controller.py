@@ -36,7 +36,6 @@ def validate_response():
             'correct_answer': correct_answer, 
             'student_response': student_response,
         })
-        print(res)
         
         return res.json(), res.status_code
     

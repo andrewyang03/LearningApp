@@ -151,14 +151,9 @@ def create_multiple_choice(text):
         
     ])
     try:
-        print("text", text)
-        print("here1")
         agent = create_tool_calling_agent(llm, tools, prompt)
-        print("here2")
         agent_executor = AgentExecutor(agent=agent, tools=tools)
-        print("here3")
         response = agent_executor.invoke({"text": text})
-        print("here4")
         return response
     except Exception as e:
         return jsonify({'error': str(e)}), 500
